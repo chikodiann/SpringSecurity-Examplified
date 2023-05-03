@@ -17,20 +17,37 @@ public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private  final AuthenticationProvider authenticationProvider;
+    private final AuthEntryPoint authEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
       http
               .csrf()
               .disable()
-              .authorizeHttpRequests()
-              .requestMatchers("")
-              .permitAll()
-              .anyRequest()
-              .authenticated()
+              .exceptionHandling()
+              .authenticationEntryPoint(authEntryPoint)
               .and()
               .sessionManagement()
               .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+              .and()
+              .authorizeHttpRequests()
+              .requestMatchers(
+                      "/api/v1/auth/**",
+                      "/v2/api-docs",
+                      "/v3/api-docs",
+                      "/v3/api-docs/**",
+                      "/swagger-resources",
+                      "/swagger-resources/**",
+                      "/configuration/ui",
+                      "/configuration/security",
+                      "/swagger-ui/**",
+                      "/webjars/**",
+                      "/swagger-ui.html"
+              )
+              .permitAll()
+              .anyRequest()
+              .authenticated()
+
               .and()
               .authenticationProvider(authenticationProvider)
               .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
